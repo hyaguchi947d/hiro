@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Avator v01</title>
+        <link rel="stylesheet" href="index.css" />
+        <style>
+            ::-webkit-scrollbar {
+                  display: none; 
+            }
+    
+            body {
+                margin:0;
+                background-color: rgba(0, 0, 0, 0);
+                -webkit-app-region: drag;
+            }
+            #min {
+                position:absolute;
+                top: -180px;
+                left: -100px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="min">
+            <canvas width="840" height="1080" id="avator"></canvas>
+        </div>
+        <script type="module" src="./index.js"></script> 
+    </body>
+</html>

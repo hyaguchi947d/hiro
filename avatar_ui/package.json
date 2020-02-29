@@ -1,0 +1,12 @@
+{
+  "name": "avatar_ui",
+  "version": "1.0.0",
+  "main": "main.js",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^7.1.2"
+  },
+  "scripts": {
+    "start": "electron ."
+  }
+}

@@ -1,0 +1,4 @@
+node_modules
+*~
+facemark/*.yaml
+facemark/*.xml
