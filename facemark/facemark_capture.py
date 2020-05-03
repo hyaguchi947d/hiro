@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+from argparse import ArgumentParser
+import time
 
 import random
 import math
@@ -8,13 +13,21 @@ import cv2 as cv
 from websocket import create_connection
 import json
 
-ws = create_connection('ws://localhost:3000/ws')
+argparser = ArgumentParser()
+argparser.add_argument("-n", action="store_true", default=False, help="no window")
+argparser.add_argument("-d", type=int, default=0, help="camera device")
+argparser.add_argument("-s", type=str, default="localhost", help="server address")
+args = argparser.parse_args(sys.argv[1:])
+
+ws = create_connection('ws://%s:3000/ws' % args.s)
+
+print(args)
 
 # please edit below for your env.
-cap = cv.VideoCapture(2)
+cap = cv.VideoCapture(args.d)
 cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
-cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc('H', '2', '6', '4'))
+# cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc('H', '2', '6', '4'))
 
 facemark = cv.face.createFacemarkLBF()
 
@@ -33,78 +46,89 @@ mouth_old_state = "close"
 neck_old_angle = 0.0
 neck_angle_list = [0, 0, 0, 0, 0]
 
+def print_time(title, tm0):
+    print("[time] %s: %f" % (title, time.time() - tm0))
+
+def draw_facemark(frame, marks):
+    # 68 landmarks
+    # 0-16: edge
+    for i in range(0, 16):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 255, 255), 2)
+
+    # 17-21, 22-26: eyebrows(R,L)
+    for i in range(17, 21):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 255, 255), 2)
+    for i in range(22, 26):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 255, 255), 2)
+
+    # 27-30, 31-35: nose
+    for i in range(27, 30):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 255, 255), 2)
+    for i in range(31, 35):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 255, 255), 2)
+        
+    # 36-41, 42-47: eyes(R.L)
+    for i in range(36, 41):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 0, 0), 2)
+    cv.line(frame,
+            tuple(marks[0][41]), tuple(marks[0][36]),
+            (255, 0, 0), 2)
+
+    for i in range(42, 47):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (255, 0, 0), 2)
+    cv.line(frame,
+            tuple(marks[0][47]), tuple(marks[0][42]),
+            (255, 0, 0), 2)
+
+
+    # 48-59: mouth (outer)
+    for i in range(48, 59):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (0, 0, 255), 2)
+    cv.line(frame,
+            tuple(marks[0][59]), tuple(marks[0][48]),
+            (0, 0, 255), 2)
+
+    # 60-67: mouth (inner)
+    for i in range(60, 67):
+        cv.line(frame,
+                tuple(marks[0][i]), tuple(marks[0][i + 1]),
+                (0, 255, 255), 2)
+    cv.line(frame,
+            tuple(marks[0][67]), tuple(marks[0][60]),
+            (0, 255, 255), 2)
 
 while(True):
+    tm0 = time.time()
     ret, frame = cap.read()
+    print_time("capture", tm0)
+
     js_message = {}
 
     try:
-        faces = cascade.detectMultiScale(frame, 1.05,  3, cv.CASCADE_SCALE_IMAGE, (30, 30))
+        faces = cascade.detectMultiScale(frame, 1.1, 5, cv.CASCADE_SCALE_IMAGE, (64, 64), (256, 256))
+        print_time("  detectMultiScale", tm0)
         ok, landmarks = facemark.fit(frame, faces=faces)
+        print_time("  facemark.fit", tm0)
 
         for marks in landmarks:
-            # 68 landmarks
-            # 0-16: edge
-            for i in range(0, 16):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 255, 255), 2)
-
-            # 17-21, 22-26: eyebrows(R,L)
-            for i in range(17, 21):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 255, 255), 2)
-            for i in range(22, 26):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 255, 255), 2)
-
-            # 27-30, 31-35: nose
-            for i in range(27, 30):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 255, 255), 2)
-            for i in range(31, 35):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 255, 255), 2)
-                
-            # 36-41, 42-47: eyes(R.L)
-            for i in range(36, 41):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 0, 0), 2)
-            cv.line(frame,
-                    tuple(marks[0][41]), tuple(marks[0][36]),
-                    (255, 0, 0), 2)
-
-            for i in range(42, 47):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (255, 0, 0), 2)
-            cv.line(frame,
-                    tuple(marks[0][47]), tuple(marks[0][42]),
-                    (255, 0, 0), 2)
-
-
-            # 48-59: mouth (outer)
-            for i in range(48, 59):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (0, 0, 255), 2)
-            cv.line(frame,
-                    tuple(marks[0][59]), tuple(marks[0][48]),
-                    (0, 0, 255), 2)
-
-            # 60-67: mouth (inner)
-            for i in range(60, 67):
-                cv.line(frame,
-                        tuple(marks[0][i]), tuple(marks[0][i + 1]),
-                        (0, 255, 255), 2)
-            cv.line(frame,
-                    tuple(marks[0][67]), tuple(marks[0][60]),
-                    (0, 255, 255), 2)
+            if not args.n:
+                draw_facemark(frame, marks)
 
             # calc neck angle
             face_left = marks[0][0]
@@ -160,11 +184,15 @@ while(True):
             if "mouth_shape" in js_message or "neck_angle" in js_message:
                 ws.send(json.dumps(js_message))
 
-            cv.imshow("Image Landmarks", frame)
     except Exception as e:
         print(e)
-        
+
+    print_time("facemark", tm0)
+
+    if not args.n:
+        cv.imshow("Image Landmarks", frame)
     cv.waitKey(1)
+    print_time("end", tm0)
 
 cap.release()
 cv.destroyAllWindows()
