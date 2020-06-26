@@ -12,6 +12,7 @@ DRAvatar.prototype = {
     neck_angle : 0,
     
     santa : false,
+    shadow : false,
 
     loadImage(layers, name) {
         let data = layers.layers.find((v) => v.name === name);
@@ -40,9 +41,16 @@ DRAvatar.prototype = {
             "o" : this.loadImage(layers, "mouth_o")
         };
         this.img_eyeball_r = this.loadImage(layers, "eyeball_r");
-        this.img_eye_r = this.loadImage(layers, "eye_r");
         this.img_eyeball_l = this.loadImage(layers, "eyeball_l");
-        this.img_eye_l = this.loadImage(layers, "eye_l");
+
+        if (this.shadow) {
+            this.img_eye_r = this.loadImage(layers, "eye2_r");
+            this.img_eye_l = this.loadImage(layers, "eye2_l");
+        } else {
+            this.img_eye_r = this.loadImage(layers, "eye_r");
+            this.img_eye_l = this.loadImage(layers, "eye_l");
+        }
+
         this.img_eyelid_list = {
             "r100" : this.loadImage(layers, "eyelid_r100"),
             "r75" : this.loadImage(layers, "eyelid_r75"),
@@ -67,7 +75,11 @@ DRAvatar.prototype = {
         this.img_eyelid_under_r = this.loadImage(layers, "eyelid_under_r");
         this.img_eyelid_under_l = this.loadImage(layers, "eyelid_under_l");
         
-        this.img_front_hair = this.loadImage(layers, "front_hair");
+        if (this.shadow) {
+            this.img_front_hair = this.loadImage(layers, "front_hair2");
+        } else {
+            this.img_front_hair = this.loadImage(layers, "front_hair");
+        }
         
         this.img_eyebrows_r = this.loadImage(layers, "eyebrows_r");
         this.img_eyebrows_l = this.loadImage(layers, "eyebrows_l");

@@ -207,6 +207,27 @@ var layers =
         },
 
         {
+            "name": "eye2_r",
+            "image": "eye2.png",
+            "tx": -137,
+            "ty": -222,
+            "width": 73,
+            "height": 73,
+            "cx": 36,
+            "cy": 36
+        },
+        {
+            "name": "eye2_l",
+            "image": "eye2.png",
+            "tx": 57,
+            "ty": -222,
+            "width": 73,
+            "height": 73,
+            "cx": 36,
+            "cy": 36
+        },
+
+        {
             "name": "eyelid_under_r",
             "image": "eyelid_under_r.png",
             // "tx": 626,
@@ -462,6 +483,16 @@ var layers =
             "image": "front_hair.png",
             // "tx": 524,
             // "ty": 395,
+            "tx": -266,
+            "ty": -494,
+            "width": 527,
+            "height": 453,
+            "cx": 0,
+            "cy": 0
+        },
+        {
+            "name": "front_hair2",
+            "image": "front_hair2.png",
             "tx": -266,
             "ty": -494,
             "width": 527,
