@@ -5,8 +5,16 @@ import createLayers from "./layers.js";
 
 var layers = createLayers();
 var avatar = DRAvatar();
-avatar.load(layers);
 avatar.santa = false;
+avatar.shadow = false;
+
+// query
+var query_params =
+    location.search.substring(1).split('&').map((x) => x.split('='));
+query_params.forEach(q => {
+    avatar[q[0]] = (q[1].toLowerCase() === 'true');
+})
+avatar.load(layers);
 
 // animation
 var cnt = 0;
