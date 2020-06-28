@@ -11,9 +11,11 @@ avatar.shadow = false;
 // query
 var query_params =
     location.search.substring(1).split('&').map((x) => x.split('='));
-query_params.forEach(q => {
-    avatar[q[0]] = (q[1].toLowerCase() === 'true');
-})
+if (query_params[0].length > 1) {
+    query_params.forEach(q => {
+        avatar[q[0]] = (q[1].toLowerCase() === 'true');
+    })
+}
 avatar.load(layers);
 
 // animation
